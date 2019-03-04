@@ -72,14 +72,15 @@ done
 # NOTE: This is equivalent to the external API DNS record pointing the API to the API VIP
 IP=$(domain_net_ip ${CLUSTER_NAME}-bootstrap baremetal)
 export API_VIP=$(dig +noall +answer "api.${CLUSTER_DOMAIN}" @$(network_ip baremetal) | awk '{print $NF}')
-echo "address=/api.${CLUSTER_DOMAIN}/${API_VIP}" | sudo tee /etc/NetworkManager/dnsmasq.d/openshift.conf
-sudo systemctl reload NetworkManager
+echo $API_VIP
+echo "address=/api.${CLUSTER_DOMAIN}/${API_VIP}" | ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$(network_ip baremetal) tee /etc/NetworkManager/dnsmasq.d/openshift.conf
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$(network_ip baremetal) 'systemctl reload NetworkManager'
 
 # Wait for ssh to start
 while ! ssh -o "StrictHostKeyChecking=no" core@$IP id ; do sleep 5 ; done
 
 # Create a master_nodes.json file
-jq '.nodes[0:3] | {nodes: .}' "${NODES_FILE}" | tee "${MASTER_NODES_FILE}"
+scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$(network_ip baremetal):/tmp/ipmi_nodes.json "${MASTER_NODES_FILE}"
 
 MASTER_INTERFACE="eth1"
 

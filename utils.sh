@@ -151,11 +151,13 @@ function apply_yaml_patches() {
 function net_iface_dhcp_ip() {
 local netname
 local hwaddr
+hostip=$(ip r | awk '/default/ {print $3}')
+ssh_opts=(-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null)
 
 netname="$1"
 hwaddr="$2"
-sudo virsh net-dhcp-leases "$netname" | grep -q "$hwaddr" || return 1
-sudo virsh net-dhcp-leases "$netname" | awk -v hwaddr="$hwaddr" '$3 ~ hwaddr {split($5, res, "/"); print res[1]}'
+ssh "${ssh_opts[@]}" "root@$hostip" virsh net-dhcp-leases "$netname" | grep -q "$hwaddr" || return 1
+ssh "${ssh_opts[@]}" "root@$hostip" virsh net-dhcp-leases "$netname" | awk -v hwaddr="$hwaddr" '$3 ~ hwaddr {split($5, res, "/"); print res[1]}'
 }
 
 function domain_net_ip() {
@@ -164,6 +166,9 @@ function domain_net_ip() {
     local net
     local hwaddr
     local rc
+
+    hostip=$(ip r | awk '/default/ {print $3}')
+    ssh_opts=(-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null)
 
     domain="$1"
     net="$2"
@@ -214,8 +219,11 @@ function network_ip() {
     local network
     local rc
 
+    hostip=$(ip r | awk '/default/ {print $3}')
+    ssh_opts=(-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null)
+
     network="$1"
-    ip="$(sudo virsh net-dumpxml "$network" | "${PWD}/pyxpath" "//ip/@address" -)"
+    ip="$(ssh "${ssh_opts[@]}" "root@$hostip" virsh net-dumpxml "$network" | "${PWD}/pyxpath" "//ip/@address" -)"
     rc=$?
     if [ $rc -ne 0 ]; then
         return $rc
