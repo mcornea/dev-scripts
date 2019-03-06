@@ -28,6 +28,16 @@ fi
 source $CONFIG
 cat $CONFIG
 
+# Use a cloudy ssh that doesn't do Host Key checking
+export SSH="ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=5"
+
+# Connect to system libvirt
+export LIBVIRT_DEFAULT_URI=qemu:///system
+if [ "$USER" != "root" -a "${XDG_RUNTIME_DIR:-}" == "/run/user/0" ] ; then
+    echo "Please use a non-root user, WITH a login shell (e.g. su - USER)"
+    exit 1
+fi
+
 WORKING_DIR=${WORKING_DIR:-"/opt/dev-scripts"}
 NODES_FILE=${NODES_FILE:-"${WORKING_DIR}/ironic_nodes.json"}
 NODES_PLATFORM=${NODES_PLATFORM:-"libvirt"}

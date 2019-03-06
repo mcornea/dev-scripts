@@ -3,12 +3,6 @@ set -xe
 
 source common.sh
 source ocp_install_env.sh
-
-# This script will create some libvirt VMs do act as "dummy baremetal"
-# then configure python-virtualbmc to control them - these can later
-# be deployed via the install process similar to how we test TripleO
-# Note we copy the playbook so the roles/modules from tripleo-quickstart
-# are found without a special ansible.cfg
 # Allow local non-root-user access to libvirt ref
 # https://github.com/openshift/installer/blob/master/docs/dev/libvirt-howto.md#make-sure-you-have-permissions-for-qemusystem
 if sudo test ! -f /etc/polkit-1/rules.d/80-libvirt.rules ; then
@@ -20,6 +14,8 @@ polkit.addRule(function(action, subject) {
 });
 EOF
 fi
+# Allow local non-root-user access to libvirt
+sudo usermod -a -G "libvirt" $USER
 
 sudo systemctl restart libvirtd
 
