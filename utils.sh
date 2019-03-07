@@ -18,7 +18,7 @@ target_name="$(basename "$target")"
 current="$target"
 for patch in $(ls "${PWD}/ignition_patches/${kind}/"*.json); do
     current_patch_name="$(basename "$patch")"
-    (>2& echo "Patching "$current" with "$patch"")
+    (>&2 echo "Patching "$current" with "$patch"")
     jsonpatch "$current" "$patch" > "${wd}/${target_name}_${current_patch_name}"
     current="${wd}/${target_name}_${current_patch_name}"
 done
@@ -26,7 +26,7 @@ done
 # Process also generated if they exist
 for patch in $(ls "${PWD}/ignition_patches/generated/${kind}/"*.json); do
     current_patch_name="$(basename "$patch")"
-    (>2& echo "Patching "$current" with "$patch"")
+    (>&2 echo "Patching "$current" with "$patch"")
     jsonpatch "$current" "$patch" > "${wd}/${target_name}_${current_patch_name}"
     current="${wd}/${target_name}_${current_patch_name}"
 done
@@ -177,10 +177,26 @@ function add_if_name_to_etcd_discovery() {
     cat "${wd}/master.yaml" | $SSH "core@$ip" sudo dd of="${master_config}"
 }
 
+function create_ignition_configs() {
+    local assets_dir
+
+    assets_dir="$1"
+
+    $GOPATH/src/github.com/metalkube/kni-installer/bin/kni-install --dir "${assets_dir}" --log-level=debug create ignition-configs
+}
+
+function create_cluster() {
+    local assets_dir
+
+    assets_dir="$1"
+
+    $GOPATH/src/github.com/metalkube/kni-installer/bin/kni-install --dir "${assets_dir}" --log-level=debug create cluster
+}
+
 function net_iface_dhcp_ip() {
 local netname
 local hwaddr
-hostip=$(ip r | awk '/default/ {print $3}')
+hostip=$(/usr/sbin/ip r | awk '/default/ {print $3}')
 ssh_opts=(-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null)
 
 netname="$1"
@@ -196,7 +212,7 @@ function domain_net_ip() {
     local hwaddr
     local rc
 
-    hostip=$(ip r | awk '/default/ {print $3}')
+    hostip=$(/usr/sbin/ip r | awk '/default/ {print $3}')
     ssh_opts=(-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null)
 
     domain="$1"
@@ -248,7 +264,7 @@ function network_ip() {
     local network
     local rc
 
-    hostip=$(ip r | awk '/default/ {print $3}')
+    hostip=$(/usr/sbin/ip r | awk '/default/ {print $3}')
     ssh_opts=(-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null)
 
     network="$1"

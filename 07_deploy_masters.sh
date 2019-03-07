@@ -48,7 +48,7 @@ done
 # https://storyboard.openstack.org/#!/story/2005093
 NUM_ACTIVE=$(openstack baremetal node list --fields name --fields provision_state | grep master | grep active | wc -l || echo 0)
 while [ "$NUM_ACTIVE" != "3" ]; do
-  if openstack baremetal node list --fields name --fields provision_state | grep master | grep error; then
+  if openstack baremetal node list --fields name --fields provision_state | grep master | grep -e error -e failed; then
     openstack baremetal node list
     echo "Error detected waiting for baremetal nodes to become active" >&2
     exit 1
@@ -60,14 +60,17 @@ done
 echo "Master nodes active"
 openstack baremetal node list
 
-NUM_LEASES=$(sudo virsh net-dhcp-leases baremetal | grep master | wc -l)
+hostip=$(/usr/sbin/ip r | awk '/default/ {print $3}')
+ssh_opts=(-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null)
+
+NUM_LEASES=$(ssh "${ssh_opts[@]}" "root@$hostip" virsh net-dhcp-leases baremetal | grep master | wc -l)
 while [ "$NUM_LEASES" -ne 3 ]; do
   sleep 10
-  NUM_LEASES=$(sudo virsh net-dhcp-leases baremetal | grep master | wc -l)
+  NUM_LEASES=$(ssh "${ssh_opts[@]}" "root@$hostip" virsh net-dhcp-leases baremetal | grep master | wc -l)
 done
 
 echo "Master nodes up, you can ssh to the following IPs with core@<IP>"
-sudo virsh net-dhcp-leases baremetal
+ssh "${ssh_opts[@]}" "root@$hostip" virsh net-dhcp-leases baremetal
 
 while [[ ! $(timeout -k 9 5 $SSH "core@api.${CLUSTER_NAME}.${BASE_DOMAIN}" hostname) =~ master- ]]; do
   echo "Waiting for the master API to become ready..."
