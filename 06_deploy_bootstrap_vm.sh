@@ -31,15 +31,15 @@ done
 
 # NOTE: This is equivalent to the external API DNS record pointing the API to the API VIP
 IP=$(domain_net_ip ${INFRA_ID}-bootstrap baremetal)
-export API_VIP=$(dig +noall +answer "api.${CLUSTER_DOMAIN}" @$(network_ip baremetal) | awk '{print $NF}')
+#export API_VIP=$(dig +noall +answer "api.${CLUSTER_DOMAIN}" @$(network_ip baremetal) | awk '{print $NF}')
+export API_VIP='192.168.123.5'
 echo "address=/api.${CLUSTER_DOMAIN}/${API_VIP}" | sudo tee /etc/NetworkManager/dnsmasq.d/openshift.conf
-sudo systemctl reload NetworkManager
 
 # Wait for ssh to start
-$SSH -o ConnectionAttempts=500 core@$IP id
+$SSH -o ConnectionAttempts=5000 core@$IP id
 
 # Create a master_nodes.json file
-jq '.nodes[0:3] | {nodes: .}' "${NODES_FILE}" | tee "${MASTER_NODES_FILE}"
+#jq '.nodes[0:3] | {nodes: .}' "${NODES_FILE}" | tee "${MASTER_NODES_FILE}"
 
 # Fix etcd discovery on bootstrap
 add_if_name_to_etcd_discovery "$IP" "eth1"

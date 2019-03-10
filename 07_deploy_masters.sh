@@ -69,15 +69,6 @@ wait_for_ironic_state "active"
 echo "Master nodes active"
 openstack baremetal node list
 
-NUM_LEASES=$(sudo virsh net-dhcp-leases baremetal | grep master | wc -l)
-while [ "$NUM_LEASES" -ne 3 ]; do
-  sleep 10
-  NUM_LEASES=$(sudo virsh net-dhcp-leases baremetal | grep master | wc -l)
-done
-
-echo "Master nodes up, you can ssh to the following IPs with core@<IP>"
-sudo virsh net-dhcp-leases baremetal
-
 while [[ ! $(timeout -k 9 5 $SSH "core@api.${CLUSTER_NAME}.${BASE_DOMAIN}" hostname) =~ master- ]]; do
   echo "Waiting for the master API to become ready..."
   sleep 10

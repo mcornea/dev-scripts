@@ -197,10 +197,12 @@ function net_iface_dhcp_ip() {
 local netname
 local hwaddr
 
+hostip='192.168.123.1'
+ssh_opts=(-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null)
+
 netname="$1"
 hwaddr="$2"
-sudo virsh net-dhcp-leases "$netname" | grep -q "$hwaddr" || return 1
-sudo virsh net-dhcp-leases "$netname" | awk -v hwaddr="$hwaddr" '$3 ~ hwaddr {split($5, res, "/"); print res[1]}'
+ssh "${ssh_opts[@]}" "root@$hostip" grep $hwaddr /var/log/messages  | grep DHCPACK | tail -1 | awk {'print $7'}
 }
 
 function domain_net_ip() {
