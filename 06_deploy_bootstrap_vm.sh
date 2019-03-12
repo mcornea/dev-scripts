@@ -37,7 +37,7 @@ echo "address=/api.${CLUSTER_DOMAIN}/${API_VIP}" | ssh -o StrictHostKeyChecking=
 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$(network_ip baremetal) 'systemctl reload NetworkManager'
 
 # Wait for ssh to start
-while ! $SSH core@$IP id ; do sleep 5 ; done
+$SSH -o ConnectionAttempts=1500 core@$IP id
 
 # Create a master_nodes.json file
 scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$(network_ip baremetal):/tmp/ipmi_nodes.json "${MASTER_NODES_FILE}"
