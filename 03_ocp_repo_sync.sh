@@ -38,6 +38,8 @@ function sync_go_repo_and_patch {
 
 sync_go_repo_and_patch github.com/metalkube/kni-installer https://github.com/metalkube/kni-installer.git
 
+sync_go_repo_and_patch github.com/metalkube/terraform-provider-ironic https://github.com/metalkube/terraform-provider-ironic.git
+
 # sync_go_repo_and_patch github.com/openshift/ci-operator https://github.com/openshift/ci-operator.git
 # sync_go_repo_and_patch github.com/sallyom/installer-e2e https://github.com/sallyom/installer-e2e.git
 

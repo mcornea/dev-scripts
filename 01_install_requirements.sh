@@ -9,7 +9,7 @@ sudo sed -i "s/=enforcing/=permissive/g" /etc/selinux/config
 sudo yum -y update
 
 sudo yum -y install epel-release --enablerepo=extras
-sudo yum -y install curl vim-enhanced wget python-pip patch psmisc figlet golang dnsmasq NetworkManager crudini
+sudo yum -y install curl vim-enhanced wget python-pip patch psmisc figlet golang dnsmasq NetworkManager crudini unzip
 
 sudo pip install \
     json-patch \
@@ -66,3 +66,11 @@ fi
 curl --silent --location https://dl.yarnpkg.com/rpm/yarn.repo | sudo tee /etc/yum.repos.d/yarn.repo
 curl --silent --location https://rpm.nodesource.com/setup_10.x | sudo bash -
 sudo yum install yarn nodejs -y
+
+# Install terraform
+if [ ! -f /usr/local/bin/terraform ]; then
+    curl -O https://releases.hashicorp.com/terraform/0.11.11/terraform_0.11.11_linux_amd64.zip
+    unzip terraform_0.11.11_linux_amd64.zip
+    sudo install terraform /usr/local/bin
+    rm -f terraform_0.11.11_linux_amd64.zip terraform
+fi
