@@ -30,16 +30,7 @@ function sync_go_repo_and_patch {
     popd
 }
 
-# sync_go_repo_and_patch github.com/openshift/origin https://github.com/openshift/origin.git
-# sync_go_repo_and_patch github.com/openshift/release https://github.com/openshift/release.git
-
-# sync_go_repo_and_patch github.com/openshift/machine-config-operator https://github.com/openshift/machine-config-operator.git
-# sync_go_repo_and_patch github.com/openshift/machine-api-operator https://github.com/openshift/machine-api-operator.git
-
 sync_go_repo_and_patch github.com/metalkube/kni-installer https://github.com/metalkube/kni-installer.git
-
-# sync_go_repo_and_patch github.com/openshift/ci-operator https://github.com/openshift/ci-operator.git
-# sync_go_repo_and_patch github.com/sallyom/installer-e2e https://github.com/sallyom/installer-e2e.git
 
 sync_go_repo_and_patch github.com/metalkube/facet https://github.com/metalkube/facet.git
 
@@ -49,3 +40,21 @@ pushd "${GOPATH}/src/github.com/metalkube/facet"
 yarn install
 ./build.sh
 popd
+
+# Install Go dependency management tool
+# Using pre-compiled binaries instead of installing from source
+curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+export PATH="${GOPATH}/bin:$PATH"
+
+# Install operator-sdk for use by the baremetal-operator
+sync_go_repo_and_patch github.com/operator-framework/operator-sdk https://github.com/operator-framework/operator-sdk.git
+
+# Build operator-sdk
+pushd "${GOPATH}/src/github.com/operator-framework/operator-sdk"
+git checkout master
+make dep
+make install
+popd
+
+# Install baremetal-operator
+sync_go_repo_and_patch github.com/metalkube/baremetal-operator https://github.com/metalkube/baremetal-operator.git
