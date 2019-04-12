@@ -13,6 +13,7 @@ oc create -f common.yaml
 sed '/FLEXVOLUME_DIR_PATH/!b;n;c\          value: "\/etc/kubernetes\/kubelet-plugins\/volume\/exec"' operator-openshift.yaml > operator-openshift-modified.yaml
 sed -i 's/# - name: FLEXVOLUME_DIR_PATH/- name: FLEXVOLUME_DIR_PATH/' operator-openshift-modified.yaml
 oc create -f operator-openshift-modified.yaml
+sleep 60
 oc wait --for condition=ready  pod -l app=rook-ceph-operator -n rook-ceph --timeout=120s
 oc wait --for condition=ready  pod -l app=rook-ceph-agent -n rook-ceph --timeout=120s
 oc wait --for condition=ready  pod -l app=rook-discover -n rook-ceph --timeout=120s
