@@ -48,7 +48,7 @@ sudo yum -y install \
 # We're reusing some tripleo pieces for this setup so clone them here
 cd
 if [ ! -d tripleo-repos ]; then
-  git clone https://git.openstack.org/openstack/tripleo-repos
+  git clone https://github.com/openstack/tripleo-repos
 fi
 pushd tripleo-repos
 sudo python setup.py install
