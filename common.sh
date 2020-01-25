@@ -143,7 +143,7 @@ FILESYSTEM=${FILESYSTEM:="/"}
 
 NODES_FILE=${NODES_FILE:-"${WORKING_DIR}/ironic_nodes.json"}
 NODES_PLATFORM=${NODES_PLATFORM:-"libvirt"}
-BAREMETALHOSTS_FILE=${BAREMETALHOSTS_FILE:-"ocp/baremetalhosts.json"}
+MASTER_NODES_FILE=${MASTER_NODES_FILE:-"ocp/master_nodes.json"}
 
 # Optionally set this to a path to use a local dev copy of
 # metal3-dev-env, otherwise it's cloned to $WORKING_DIR
